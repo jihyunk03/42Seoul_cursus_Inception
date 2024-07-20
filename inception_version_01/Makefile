@@ -54,10 +54,10 @@ fclean: clean
 status: ps images volume network top
 
 ps logs images top:
-	docker compose -f $(DOCKER_COMPOSE_FILE) $@
+	@docker compose -f $(DOCKER_COMPOSE_FILE) $@
 
 network volume:
-	docker $@ ls
+	@docker $@ ls
 
 # phony
 .PHONY: all re fclean down clean status
