@@ -117,6 +117,11 @@ key=value
 
 ## mariaDB
 
+### etc
+- https://mariadb.com/resources/blog/how-to-install-and-run-wordpress-with-mariadb/
+
+- https://ninano1109.tistory.com/152
+
 ### `mariadb --bootstrap`
 : MariaDB 서버를 초기화 모드로 실행하여 데이터베이스 시스템 테이블 생성, 초기 사용자 설정 및 초기화 스크립트를 실행하는 데 사용된다.
 
@@ -124,3 +129,19 @@ key=value
 : MariaDB 서버 데몬을 실행하는 일반적인 명령어로, MariaDB 서버를 정상적으로 실행하여 클라이언트 요청을 처리할 수 있게 한다.
 - 서버 실행: MariaDB 서버를 실행하여 데이터베이스 클라이언트가 연결하고 쿼리를 실행할 수 있도록 한다.
 - 지속적인 운영: 서버를 지속적으로 실행하여 데이터베이스 서비스 제공.
+
+
+
+## WordPress
+
+### download `wp-cli`
+- https://make.wordpress.org/cli/handbook/guides/installing/
+
+### config file
+- https://myjeeva.com/php-fpm-configuration-101.html#pool-directives
+
+### create wordpress shell
+- https://ko.wordpress.org/download/#download-install
+- https://developer.wordpress.org/advanced-administration/wordpress/wp-config/
+- https://github.com/WordPress/WordPress/blob/master/wp-config-sample.php
+- https://nolboo.kim/blog/2016/05/16/ultimate-wordpress-development-environment-wp-cli/

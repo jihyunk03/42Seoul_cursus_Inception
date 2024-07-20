@@ -72,8 +72,6 @@ services:
     build: ./${REQ_FOLDER}/wordpress
     container_name: wordpress
     depends_on:
-      redis:
-        condition: service_healthy
       mariadb:
         condition: service_healthy
     env_file:
