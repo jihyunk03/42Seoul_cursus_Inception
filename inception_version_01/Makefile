@@ -27,8 +27,8 @@ export VOLUMES_DIR
 
 # build and run docker-containers
 all:
+	@mkdir -p $(MARIADB_VOLUME_DIR) $(WORDPRESS_VOLUME_DIR)
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
-#	@mkdir -p $(MARIADB_VOLUME_DIR) $(WORDPRESS_VOLUME_DIR) 상단으로 올리기!
 
 # down docker-containers
 down:
@@ -49,6 +49,7 @@ clean:
 fclean: clean
 	@sudo rm -rf $(MARIADB_VOLUME_DIR)/*
 	@sudo rm -rf $(WORDPRESS_VOLUME_DIR)/*
+	@sudo rm -rf $(VOLUMES_DIR)
 
 # show status(logs)
 status: ps images volume network top

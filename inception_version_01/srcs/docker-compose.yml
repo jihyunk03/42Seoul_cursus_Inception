@@ -114,16 +114,16 @@ volumes:
   mariadb:
     name: mariadb
     driver: local
-    # driver_opts:
-    #   o: "bind"
-    #   type: "none"
-    #   device: ${VOLUMES_DIR}/mariadb
+    driver_opts:
+      o: "bind"
+      type: "none"
+      device: ${VOLUMES_DIR}/mariadb
 
   # volume for wordpress
   wordpress:
     name: wordpress
     driver: local
-    # driver_opts:
-    #   o: "bind"
-    #   type: "none"
-    #   device: ${VOLUMES_DIR}/wordpress
+    driver_opts:
+      o: "bind"
+      type: "none"
+      device: ${VOLUMES_DIR}/wordpress
