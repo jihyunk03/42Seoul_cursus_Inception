@@ -11,15 +11,15 @@ RUN apk upgrade --no-cache && \
 WORKDIR /var/lib/mysql
 
 # copy conf-file for setting
-COPY --chmod=644 ./conf/my.cnf /etc/my.cnf
-COPY --chmod=644 ./conf/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
-COPY --chmod=755 ./tools/init_db.sh /
+COPY --chmod=644 conf/my.cnf /etc/my.cnf
+COPY --chmod=644 conf/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
+COPY --chmod=755 tools/init-db.sh /
 
 # set entrypoint
-ENTRYPOINT [ "/init_db.sh" ]
+ENTRYPOINT [ "sh", "/init-db.sh" ]
 
 # start db
-CMD [ "mariadb-safe" ]
+CMD [ "mariadbd-safe" ]
 
 # signal
 STOPSIGNAL SIGQUIT

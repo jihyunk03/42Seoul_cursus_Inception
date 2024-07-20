@@ -1,9 +1,3 @@
-# 42Seoul_cursus_Inception
-
-- `inception_version_00`: summary and test
-- `inception_version_01`: test and evaluation
-
-
 ## yaml file
 - `services`: docker compose 파일에서 하나 이상의 서비스를 정의하는 최상위 레벨 키로, 각 서비스는 독립적으로 구성할 수 있는 단위이며, 각각의 서비스는 하나의 컨테이너 또는 컨테이너 그룹을 나타낸다
 

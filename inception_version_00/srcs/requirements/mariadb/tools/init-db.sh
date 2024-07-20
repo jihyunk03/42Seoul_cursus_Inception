@@ -3,8 +3,8 @@
 # set shell-script
 set -e
 
-# init MariaDB and start
-mariadb --user=mysql --datadir=/var/lib/mysql --bootstrap << EOF
+# init MariaDB
+mariadbd --user=mysql --datadir=/var/lib/mysql --bootstrap << EOF
     FLUSH PRIVILEGES;
     CREATE USER IF NOT EXISTS root@localhost IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
     SET PASSWORD FOR root@localhost = PASSWORD('$MYSQL_ROOT_PASSWORD');
@@ -16,6 +16,7 @@ mariadb --user=mysql --datadir=/var/lib/mysql --bootstrap << EOF
     CREATE USER IF NOT EXISTS $MYSQL_USER_ID@'%' IDENTIFIED BY '$MYSQL_USER_PASSWORD';
     SET PASSWORD FOR $MYSQL_USER_ID@'%' = PASSWORD('$MYSQL_USER_PASSWORD');
     GRANT ALL ON $MYSQL_DATABASE.* TO $MYSQL_USER_ID@'%' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
 EOF
 
 # exit script and excute command

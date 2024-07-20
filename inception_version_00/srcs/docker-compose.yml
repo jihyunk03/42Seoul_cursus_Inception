@@ -1,0 +1,143 @@
+version: "3"
+
+services:
+  mariadb:
+    container_name: mariadb
+    build:
+      # context(build context), dockerfile(name default: Dockerfile)
+      context: ./${REQ_FOLDER}/mariadb
+      dockerfile: Dockerfile
+    env_file:
+      - ${ENV_FILE}
+    # expose: port that will be exposed to the other containers (container to container)
+    expose:
+      - "3306"
+    # healthcheck for the container
+    healthcheck:
+      # interval between checks (0: healthy, 1: unhealthy)
+      interval: 5s
+      test:
+        [ "CMD-SHELL", "mariadb-admin ping -h localhost -u root --password=$$MYSQL_ROOT_PASSWORD || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 1s
+    # image name from docker hub
+    image: mariadb:jihykim2
+    # init: run init scripts or not
+    init: true
+    # network name
+    networks:
+      - network
+    # restart policy for the container(on-failure[:max-retries]: restart only when the container exits with a non-zero exit code)
+    restart: on-failure:3
+    # volume that will be attached to the container
+    volumes:
+      - mariadb:/var/lib/mysql
+
+  nginx:
+    build: ./${REQ_FOLDER}/nginx
+    container_name: nginx
+    # Dependency of the container: The container will start after the dependency is healthy
+    depends_on:
+      - wordpress
+    env_file:
+      - ${ENV_FILE}
+    expose:
+      - "443"
+    healthcheck:
+      interval: 5s
+      test: [ "CMD-SHELL", "curl -k https://localhost:443 || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 1s
+    # Hostname of the container (for internal DNS)
+    hostname: ${DOMAIN}
+    image: nginx:jusohn
+    init: true
+    networks:
+      - network
+    # Port that will be exposed to the host (host:container)
+    ports:
+      - "443:443"
+    restart: on-failure
+    # Secrets that will be attached to the container
+    secrets:
+      - server.pem
+      - server.key
+    volumes:
+      - wordpress:/var/www
+    userns_mode: "host"
+
+  wordpress:
+    build: ./${REQ_FOLDER}/wordpress
+    container_name: wordpress
+    depends_on:
+      redis:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+    env_file:
+      - ${ENV_FILE}
+    # Environment Variables that will be passed to the container
+    # environment:
+    #   - HTTP_HOST=${DOMAIN}
+    expose:
+      - "9000"
+    healthcheck:
+      interval: 5s
+      test: [ "CMD-SHELL", "cgi-fcgi -bind -connect localhost:9000 || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    image: wordpress:jusohn
+    init: true
+    networks:
+      - network
+    restart: on-failure
+    volumes:
+      - wordpress:/var/www
+
+# Secrets that will be created from files
+secrets:
+  server.pem:
+    file: ${REQ_FOLDER}/${CERT_FOLDER}/${DOMAIN}.pem
+  server.key:
+    file: ${REQ_FOLDER}/${CERT_FOLDER}/${DOMAIN}.key
+
+# Network Bridge for the containers
+# Network that the container will be attached to.
+# Network types: bridge, host, none, overlay, or 3rd party network plugins
+networks:
+  # Network Name that containers will be attached to
+  network:
+    # Name of the network
+    name: inception
+    # Driver for the network (bridge, host, ...)
+    driver: bridge
+  # monitoring:
+  #   name: monitoring
+  #   driver: bridge
+
+# Volumes from the host that will be mounted to the containers, so that the data is persistent
+volumes:
+  # Volume Name, that will be created on the host
+  mariadb:
+    name: mariadb
+    # Driver for the volume: Local, Volume (Docker Volume), TMPFS (Temporary File System)
+    driver: local
+    # Driver Options for the volume
+    driver_opts:
+      # Mount Option for the driver: bind (mount host directory), volume (mount docker volume), ...
+      o: "bind"
+      # Type of the driver: none (local), nfs, ...
+      type: "none"
+      # Path to the directory on the host (binding host directory to the container)
+      device: ${VOLUME_DIR}/mariadb
+
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      o: "bind"
+      type: "none"
+      device: ${VOLUME_DIR}/wordpress

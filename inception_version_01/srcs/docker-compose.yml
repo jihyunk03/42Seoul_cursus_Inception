@@ -1,0 +1,76 @@
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    ports:
+      - 443:443
+    # image: nginx:nginx-jihykim2
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: always
+    networks:
+      - network
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+      args:
+        - MYSQL_HOSTNAME
+        - MYSQL_DATABASE
+        - MYSQL_USER
+        - MYSQL_PASSWORD
+        - MYSQL_ROOT_PASSWORD
+    expose:
+      - 3306
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - network
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+  wordpress:
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    expose:
+      - 9000
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - network
+
+volumes:
+  mariadb_data:
+    driver: local
+    # driver_opts:
+    #   type: none
+    #   device: /home/jihykim2/data/mysql
+    #   o: bind
+  wordpress_data:
+    driver: local
+    # driver_opts:
+    #   type: none
+    #   device: /home/jihykim2/data/wordpress
+    #   o: bind
+
+networks:
+  network:
+    driver: bridge
