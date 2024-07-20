@@ -1,38 +1,47 @@
-services:
-  nginx:
-    container_name: nginx
-    build:
-      context: ./requirements/nginx
-      dockerfile: Dockerfile
-    ports:
-      - 443:443
-    # image: nginx:nginx-jihykim2
-    volumes:
-      - wordpress_data:/var/www/html
-    restart: always
-    networks:
-      - network
+version: "3"
 
+services:
+  # database container
   mariadb:
+    # name
     container_name: mariadb
+    # build options
     build:
-      context: ./requirements/mariadb
+      # context(build context), dockerfile(name default: Dockerfile)
+      context: ${REQ_FOLDER}/mariadb
       dockerfile: Dockerfile
+      # set env for using at build-times
       args:
         - MYSQL_HOSTNAME
         - MYSQL_DATABASE
         - MYSQL_USER
         - MYSQL_PASSWORD
         - MYSQL_ROOT_PASSWORD
+    # expose port that will be exposed to the other containers (container to container)
     expose:
-      - 3306
-    volumes:
-      - mariadb_data:/var/lib/mysql
+      - "3306"
+    # healthcheck for the container
+    healthcheck:
+      # interval between checks (0: healthy, 1: unhealthy)
+      interval: 5s
+      test:
+        [ "CMD-SHELL", "mariadb-admin ping -h localhost -u root --password=$$MYSQL_ROOT_PASSWORD || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 1s
+    # image name from docker hub
+    image: mariadb:jihykim2
+    # network name
     networks:
-      - network
-    restart: always
+      - inception
+    # restart policy for the container(on-failure[:max-retries]: restart only when the container exits with a non-zero exit code)
+    restart: on-failure:3
+    # mount volumes
+    volumes:
+      - mariadb:/var/lib/mysql
+    # set env
     env_file:
-      - .env
+      - ${ENV_FILE}
     environment:
       - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -40,37 +49,83 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
+  # web-server container
+  nginx:
+    container_name: nginx
+    # dependency of the container: the container will start after the dependency is healthy
+    depends_on:
+      - wordpress
+    build:
+      context: ${REQ_FOLDER}/nginx
+      dockerfile: Dockerfile
+    # port that will be exposed to the host (host:container)
+    ports:
+      - "443:443"
+    healthcheck:
+      interval: 5s
+      test: [ "CMD-SHELL", "curl -k https://localhost:443 || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 1s
+    image: nginx:jihykim2
+    volumes:
+      - wordpress:/var/www/html
+    restart: on-failure
+    networks:
+      - inception
+    env_file:
+      - ${ENV_FILE}
+
+  # cms container
   wordpress:
     container_name: wordpress
     depends_on:
       - mariadb
     build:
-      context: ./requirements/wordpress
+      context: ${REQ_FOLDER}/wordpress
       dockerfile: Dockerfile
     expose:
-      - 9000
+      - "9000"
+    healthcheck:
+      interval: 5s
+      test: [ "CMD-SHELL", "cgi-fcgi -bind -connect localhost:9000 || exit 1" ]
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    image: wordpress:jihykim2
     restart: always
-    env_file:
-      - .env
     volumes:
-      - wordpress_data:/var/www/html
+      - wordpress:/var/www/html
     networks:
-      - network
+      - inception
+    env_file:
+      - ${ENV_FILE}
 
-volumes:
-  mariadb_data:
-    driver: local
-    # driver_opts:
-    #   type: none
-    #   device: /home/jihykim2/data/mysql
-    #   o: bind
-  wordpress_data:
-    driver: local
-    # driver_opts:
-    #   type: none
-    #   device: /home/jihykim2/data/wordpress
-    #   o: bind
 
+# network for containers
+#   - types: bridge, host, none, ...
+#   - "inception" is network name
 networks:
-  network:
+  inception:
     driver: bridge
+
+
+# volumes will be created on the host
+volumes:
+  # volume for mariadb
+  mariadb:
+    name: mariadb
+    driver: local
+    # driver_opts:
+    #   o: "bind"
+    #   type: "none"
+    #   device: ${VOLUMES_DIR}/mariadb
+
+  # volume for wordpress
+  wordpress:
+    name: wordpress
+    driver: local
+    # driver_opts:
+    #   o: "bind"
+    #   type: "none"
+    #   device: ${VOLUMES_DIR}/wordpress
