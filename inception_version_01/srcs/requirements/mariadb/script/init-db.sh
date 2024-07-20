@@ -19,4 +19,4 @@ cat <<EOF > /var/www/initial.sql
 EOF
 
 # execute the initial SQL script with the root password
-mysql -uroot -p "$MYSQL_ROOT_PASSWORD" < /var/www/initial.sql
+mysql -uroot -p"$MYSQL_ROOT_PASSWORD" < /var/www/initial.sql
