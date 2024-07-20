@@ -40,10 +40,10 @@ re: clean
 
 # stop containers and remove images and volumes
 clean:
-	@docker stop $$(docker ps -qa);
-	@docker rm $$(docker ps -qa);
-	@docker rmi -f $$(docker images -qa);
-	@docker volume rm $$(docker volume ls -q);
+	@docker ps -q | xargs -r docker stop
+	@docker ps -aq | xargs -r docker rm
+	@docker images -q | xargs -r docker rmi -f
+	@docker volume ls -q | xargs -r docker volume rm
 
 # stop and remove mounted-volumes
 fclean: clean
