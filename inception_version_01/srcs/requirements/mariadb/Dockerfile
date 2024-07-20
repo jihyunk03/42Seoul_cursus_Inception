@@ -1,6 +1,4 @@
-# https://mariadb.com/resources/blog/how-to-install-and-run-wordpress-with-mariadb/
-# https://ninano1109.tistory.com/152
-
+# choosed base OS
 FROM debian:buster
 
 # get env values at build-time
@@ -10,20 +8,21 @@ ARG MYSQL_USER
 ARG MYSQL_PASSWORD
 ARG MYSQL_ROOT_PASSWORD
 
-RUN apt-get update
-RUN apt-get install mariadb-server tini -y
+# install required-packages and optimize images
+RUN apt-get update && \
+    apt-get install -y mariadb-server \
+                       dumb-init && \
+    rm -rf /var/lib/apt/lists/*
 
-# dumb-init
+# copy init-db for setting mariadb
+COPY ./script/init-db.sh /var/www/init-db.sh
 
-# EXPOSE 3306
+# run init shell-script
+RUN chmod +x /var/www/init-db.sh && \
+    /var/www/init-db.sh
 
-COPY ./script/initial.sh /var/www/initial.sh
-RUN chmod +x /var/www/initial.sh
+# set entrypoint for pid 1 and execute next process(sh)
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-# RUN service mysql start
-
-RUN /var/www/initial.sh
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-
+# execute mariadb
 CMD [ "mysqld", "--bind-address=0.0.0.0" ]
