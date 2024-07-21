@@ -1,5 +1,5 @@
 # choosed base OS
-FROM debian:buster
+FROM debian:bullseye
 
 # get env values at build-time
 ARG MYSQL_HOSTNAME

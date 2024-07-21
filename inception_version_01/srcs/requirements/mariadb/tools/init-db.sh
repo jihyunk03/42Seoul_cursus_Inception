@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # start MySQL service
-service mysql start
+service mariadb start
 
 # wait for MySQL to be ready
-until mysqladmin ping &>/dev/null; do
-  echo "Waiting for MySQL to be ready..."
+until mariadb-admin ping &>/dev/null; do
+  echo "Waiting for MariaDB to be ready..."
   sleep 2
 done
 
@@ -19,4 +19,4 @@ cat <<EOF > /var/www/initial.sql
 EOF
 
 # execute the initial SQL script with the root password
-mysql -uroot -p"$MYSQL_ROOT_PASSWORD" < /var/www/initial.sql
+mariadb -uroot -p"$MYSQL_ROOT_PASSWORD" < /var/www/initial.sql
