@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # copy init-db for setting mariadb
-COPY ./script/init-db.sh /var/www/init-db.sh
+COPY ./tools/init-db.sh /var/www/init-db.sh
 
 # run init shell-script
 RUN chmod +x /var/www/init-db.sh && \
