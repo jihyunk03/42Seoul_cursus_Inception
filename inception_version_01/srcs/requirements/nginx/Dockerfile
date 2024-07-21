@@ -1,5 +1,5 @@
 # choosed base OS
-FROM debian:buster
+FROM debian:bullseye
 
 # install required-packages and optimize images
 RUN apt-get update && \
