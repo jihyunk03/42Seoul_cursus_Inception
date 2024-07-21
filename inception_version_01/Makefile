@@ -51,12 +51,22 @@ fclean: clean
 status: ps images volume network top
 
 ps logs images top:
-	@docker compose -f $(DOCKER_COMPOSE_FILE) $@
+	docker compose -f $(DOCKER_COMPOSE_FILE) $@
 
 network volume:
-	@docker $@ ls
+	docker $@ ls
 
 # phony
 .PHONY: all re fclean down clean status
-.PHONY: ps logs images top
-.PHONY: network volume
+.PHONY: ps logs images top network volume
+
+
+RESET	= "\x1b[0m"
+GREY	= "\x1b[30m"
+RED		= "\x1b[31m"
+GREEN	= "\x1b[32m"
+YELLOW	= "\x1b[33m"
+BLUE	= "\x1b[34m"
+PURPLE	= "\x1b[35m"
+CYAN	= "\x1b[36m"
+WHITE	= "\x1b[37m"
