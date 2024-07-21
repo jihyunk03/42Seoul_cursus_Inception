@@ -4,15 +4,11 @@
 
 # folders
 SRC_FOLDER				:= srcs
-REQ_FOLDER				:= requirements
 DATA_FOLDER				:= data
 VOLUMES_FOLDER			:= volumes
-export REQ_FOLDER
 
 # files
-ENV_FILE				:= .env
 DOCKER_COMPOSE_FILE		:= $(SRC_FOLDER)/docker-compose.yml
-export ENV_FILE
 
 # directories
 VOLUMES_DIR				:= $(HOME)/$(DATA_FOLDER)/$(VOLUMES_FOLDER)
