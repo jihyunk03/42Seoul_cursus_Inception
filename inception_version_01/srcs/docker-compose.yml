@@ -6,7 +6,7 @@ services:
     # build options
     build:
       # context(build context), dockerfile(name default: Dockerfile)
-      context: ${REQ_FOLDER}/mariadb
+      context: ./requirements/mariadb
       dockerfile: Dockerfile
       # set env for using at build-times
       args:
@@ -39,7 +39,7 @@ services:
       - mariadb:/var/lib/mysql
     # set env
     env_file:
-      - ${ENV_FILE}
+      - .env
     environment:
       - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -54,7 +54,7 @@ services:
     depends_on:
       - wordpress
     build:
-      context: ${REQ_FOLDER}/nginx
+      context: ./requirements/nginx
       dockerfile: Dockerfile
     # port that will be exposed to the host (host:container)
     ports:
@@ -72,7 +72,7 @@ services:
     networks:
       - inception
     env_file:
-      - ${ENV_FILE}
+      - .env
 
   # cms container
   wordpress:
@@ -80,7 +80,7 @@ services:
     depends_on:
       - mariadb
     build:
-      context: ${REQ_FOLDER}/wordpress
+      context: ./requirements/wordpress
       dockerfile: Dockerfile
     expose:
       - "9000"
@@ -97,7 +97,7 @@ services:
     networks:
       - inception
     env_file:
-      - ${ENV_FILE}
+      - .env
 
 
 # network for containers
